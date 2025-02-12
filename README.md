@@ -1,0 +1,1 @@
+This repository has been heavily inspired by [WildPlusKernel/GKI_KernelSU_SUSFS](https://github.com/WildPlusKernel/GKI_KernelSU_SUSFS).

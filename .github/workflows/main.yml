@@ -106,6 +106,62 @@ jobs:
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
 
+  build-6-30-ksu-gki:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      runner: ${{ inputs.runner }}
+      android_version: "android15"
+      kernel_version: "6.6"
+      sub_level: 30
+      os_patch_level: 2024-08
+      lto_type: ${{ inputs.lto_type }}
+      kernelsu_variant: "KSU"
+      kernelsu_branch: ${{ inputs.kernelsu_branch }}
+      kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+
+  build-6-30-mksu-gki:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      runner: ${{ inputs.runner }}
+      android_version: "android15"
+      kernel_version: "6.6"
+      sub_level: 30
+      os_patch_level: 2024-08
+      lto_type: ${{ inputs.lto_type }}
+      kernelsu_variant: "MKSU"
+      kernelsu_branch: ${{ inputs.kernelsu_branch }}
+      kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+
+  build-6-30-ksu-next-gki:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      runner: ${{ inputs.runner }}
+      android_version: "android15"
+      kernel_version: "6.6"
+      sub_level: 30
+      os_patch_level: 2024-08
+      lto_type: ${{ inputs.lto_type }}
+      kernelsu_variant: "KSU_NEXT"
+      kernelsu_branch: ${{ inputs.kernelsu_branch }}
+      kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+
+  build-6-30-all-ksu-gki:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      runner: ${{ inputs.runner }}
+      android_version: "android15"
+      kernel_version: "6.6"
+      sub_level: 30
+      os_patch_level: 2024-08
+      lto_type: ${{ inputs.lto_type }}
+      kernelsu_variant: "ALL"
+      kernelsu_branch: ${{ inputs.kernelsu_branch }}
+      kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+
   release:
     runs-on: ubuntu-latest
     needs:
@@ -113,6 +169,10 @@ jobs:
         - build-mksu-gki
         - build-ksu-next-gki
         - build-all-ksu-gki
+        - build-6-30-ksu-gki
+        - build-6-30-mksu-gki
+        - build-6-30-ksu-next-gki
+        - build-6-30-all-ksu-gki
     if: ${{ inputs.make_release }}
     env:
       REPO_OWNER: ukriu

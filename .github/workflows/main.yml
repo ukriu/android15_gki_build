@@ -19,8 +19,9 @@ on:
         default: true
       include_susfs:
         description: 'Include SUSFS?'
-        requiree: true
+        required: true
         type: boolean
+        default: true
       runner:
         description: "Choose runner"
         required: true

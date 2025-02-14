@@ -10,6 +10,9 @@ on:
       runner:
         required: true
         type: string
+      include_susfs:
+        required: true
+        type: boolean
       android_version:
         required: true
         type: string
@@ -191,7 +194,7 @@ jobs:
 
 
       - name: Add MKSU
-        if: ${{ inputs.kernelsu_variant == 'MKSU'}}
+        if: ${{ inputs.kernelsu_variant == 'MKSU' }}
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
@@ -206,7 +209,7 @@ jobs:
           sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
 
       - name: Apply SUSFS Patches KernelSU
-        if: ${{ inputs.kernelsu_variant == 'KSU' || inputs.kernelsu_variant == 'ALL' && inputs.include_susfs == 'true' }}
+        if: ${{ inputs.kernelsu_variant == 'KSU' || inputs.kernelsu_variant == 'ALL' && inputs.include_susfs == "true" }}
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
@@ -228,14 +231,14 @@ jobs:
           patch -p1 --fuzz=3 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
 
       - name: Add All Managers
-        if: ${{ inputs.kernelsu_variant == 'ALL' && inputs.include_susfs == 'true'}}
+        if: ${{ inputs.kernelsu_variant == 'ALL' && inputs.include_susfs == "true"}}
         run: |
           cd "$CONFIG"
           cp ../kernel_patches/apk_sign.c_fix.patch ./
           patch -p1 -F 3 < apk_sign.c_fix.patch
 
       - name: Apply SUSFS Patches KernelSU-Next
-        if: ${{ inputs.kernelsu_variant == 'KSU_NEXT' && inputs.include_susfs == 'true' }}
+        if: ${{ inputs.kernelsu_variant == 'KSU_NEXT' && inputs.include_susfs == "true" }}
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
@@ -257,7 +260,7 @@ jobs:
           patch -p1 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
 
       - name: Apply SUSFS Patches MKSU
-        if: ${{ inputs.kernelsu_variant == 'MKSU' && inputs.include_susfs == 'true'}}
+        if: ${{ inputs.kernelsu_variant == 'MKSU' && inputs.include_susfs == "true"}}
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
@@ -283,7 +286,7 @@ jobs:
           patch -p1 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
 
       - name: Replace namespace.c
-        if: ${{ inputs.include_susfs == 'true' inputs.sub_level == 30 && inputs.os_patch_level == '2024-08' && inputs.kernel_version == '6.6' }}
+        if: ${{ inputs.include_susfs == "true" && inputs.sub_level == 30 && inputs.os_patch_level == '2024-08' && inputs.kernel_version == '6.6' }}
         run: |
           echo "Changing to $CONFIG"
           cd "$CONFIG"
@@ -292,7 +295,7 @@ jobs:
           rm -f "./common/fs/namespace.c.rej"
 
       - name: Apply Hide Stuff Patches
-        if: ${{ inputs.include_susfs == 'true' }}
+        if: ${{ inputs.include_susfs == "true" }}
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG/common"
@@ -301,10 +304,11 @@ jobs:
           patch -p1 -F 3 < 69_hide_stuff.patch
 
       - name: Add SUSFS Configuration Settings
-        if: ${{ inputs.include_susfs == 'true' }}
+        if: ${{ inputs.include_susfs == "true" }}
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
+          echo "Current Directory: ${pwd}"
 
           echo "Adding configuration settings to gki_defconfig..."
 

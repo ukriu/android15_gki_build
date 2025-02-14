@@ -288,6 +288,12 @@ jobs:
           echo "Changing to $CONFIG"
           cd "$CONFIG"
           echo "Copying over replacement"
+          pwd
+          ls
+          echo "--------------------------------------------------------------------"
+          cd ..
+          pwd
+          ls
           cp "../kernel_patches/replacements/6.6.30/fs/namespace.c" "../common/fs/namespace.c"
           rm -f "../common/fs/namespace.c.rej"
 

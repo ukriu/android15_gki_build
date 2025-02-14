@@ -209,7 +209,7 @@ jobs:
           sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
 
       - name: Apply SUSFS Patches KernelSU
-        if: ${{ inputs.include_susfs == 'true' && inputs.kernelsu_variant == 'KSU' || inputs.kernelsu_variant == 'ALL' }}
+        if: ${{ inputs.include_susfs == 'true' && (inputs.kernelsu_variant == 'KSU' || inputs.kernelsu_variant == 'ALL') }}
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"

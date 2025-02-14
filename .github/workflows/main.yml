@@ -17,6 +17,10 @@ on:
         required: true
         type: boolean
         default: true
+      include_susfs:
+        description: 'Include SUSFS?'
+        requiree: true
+        type: boolean
       runner:
         description: "Choose runner"
         required: true
@@ -63,6 +67,7 @@ jobs:
       kernelsu_variant: "KSU"
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      include_susfs: ${{ inputs.include_susfs }}
 
   build-mksu-gki:
     uses: ./.github/workflows/build.yml
@@ -77,6 +82,7 @@ jobs:
       kernelsu_variant: "MKSU"
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      include_susfs: ${{ inputs.include_susfs }}
 
   build-ksu-next-gki:
     uses: ./.github/workflows/build.yml
@@ -91,6 +97,7 @@ jobs:
       kernelsu_variant: "KSU_NEXT"
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      include_susfs: ${{ inputs.include_susfs }}
 
   build-all-ksu-gki:
     uses: ./.github/workflows/build.yml
@@ -105,6 +112,7 @@ jobs:
       kernelsu_variant: "ALL"
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      include_susfs: ${{ inputs.include_susfs }}
 
   build-6-30-ksu-gki:
     uses: ./.github/workflows/build.yml
@@ -119,6 +127,7 @@ jobs:
       kernelsu_variant: "KSU"
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      include_susfs: ${{ inputs.include_susfs }}
 
   build-6-30-mksu-gki:
     uses: ./.github/workflows/build.yml
@@ -133,6 +142,7 @@ jobs:
       kernelsu_variant: "MKSU"
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      include_susfs: ${{ inputs.include_susfs }}
 
   build-6-30-ksu-next-gki:
     uses: ./.github/workflows/build.yml
@@ -147,6 +157,7 @@ jobs:
       kernelsu_variant: "KSU_NEXT"
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      include_susfs: ${{ inputs.include_susfs }}
 
   build-6-30-all-ksu-gki:
     uses: ./.github/workflows/build.yml
@@ -161,6 +172,7 @@ jobs:
       kernelsu_variant: "ALL"
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      include_susfs: ${{ inputs.include_susfs }}
 
   release:
     runs-on: ubuntu-latest
@@ -243,6 +255,8 @@ jobs:
           name: ${{ env.RELEASE_NAME }}
           body: |
             These kernels are prebuilt with Offical KernelSU/MKSU/KernelSU-Next with SUSFS.
+            
+            **SUSFS Present: ${{ inputs.include_susfs }}**
             
             Features:
             [+] KernelSU/MKSU/KernelSU-Next

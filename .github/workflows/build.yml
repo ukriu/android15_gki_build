@@ -282,6 +282,15 @@ jobs:
           cd ../common
           patch -p1 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
 
+      - name: Replace namespace.c
+        if: ${{ inputs.sub_level == 30 && inputs.os_patch_level == '2024-08' && inputs.kernel_version == '6.6' }}
+        run: |
+          echo "Changing to $CONFIG"
+          cd "$CONFIG"
+          echo "Copying over replacement"
+          cp "../kernel_patches/replacement/6.6.30/fs/namespace.c" "../common/fs/namespace.c"
+          rm -f "../common/fs/namespace.c.rej"
+
       - name: Apply Hide Stuff Patches
         run: |
           echo "Changing to configuration directory: $CONFIG..."
@@ -289,7 +298,6 @@ jobs:
           # Apply additional patch
           cp ../../kernel_patches/69_hide_stuff.patch ./
           patch -p1 -F 3 < 69_hide_stuff.patch
-
 
       - name: Add SUSFS Configuration Settings
         run: |

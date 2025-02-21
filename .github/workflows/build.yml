@@ -196,21 +196,21 @@ jobs:
             echo "Applying SUSFS patches for Official KernelSU..."
             cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
             cd ./KernelSU
-            patch -p1 --forward < 10_enable_susfs_for_ksu.patch
+            patch -p1 --forward --fuzz=3 < 10_enable_susfs_for_ksu.patch
           elif [[ "${{ inputs.kernelsu_variant }}" == "KSU_NEXT" ]]; then
             echo "Applying SUSFS patches for KernelSU-Next..."
             cd ./KernelSU-Next
             cp ../../kernel_patches/KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch ./
-            patch -p1 --forward < KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch || true
+            patch -p1 --forward --fuzz=3 < KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch || true
           elif [[ "${{ inputs.kernelsu_variant }}" == "MKSU" ]]; then
             echo "Applying SUSFS patches for MKSU..."
             cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
             cd ./KernelSU
-            patch -p1 --forward < 10_enable_susfs_for_ksu.patch || true
+            patch -p1 --forward --fuzz=3 < 10_enable_susfs_for_ksu.patch || true
             
             echo "Applying MKSU specific SUSFS patch..."
             cp ../../kernel_patches/mksu_susfs.patch ../KernelSU/
-            patch -p1 < mksu_susfs.patch
+            patch -p1 --fuzz=3 < mksu_susfs.patch
           else
             echo "Invalid KernelSU variant selected!"
             exit 1
@@ -218,16 +218,16 @@ jobs:
           
           # Change to common directory and apply common SUSFS patch
           cd ../common
-          patch -p1 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
+          patch -p1 --fuzz=3 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
           cd ../KernelSU
-          patch -p1 < fix.patch
+          patch -p1 --fuzz=3 < fix.patch
 
       - name: Add All Managers
         if: ${{ inputs.kernelsu_variant == 'ALL' && inputs.include_susfs == true}}
         run: |
           cd "$CONFIG"
           cp ../kernel_patches/apk_sign.c_fix.patch ./
-          patch -p1 -F 3 < apk_sign.c_fix.patch
+          patch -p1 --fuzz=3 < apk_sign.c_fix.patch
 
       - name: Replace namespace.c
         if: ${{ inputs.include_susfs == true && inputs.sub_level == 30 && inputs.os_patch_level == '2024-08' && inputs.kernel_version == '6.6' }}

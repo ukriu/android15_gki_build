@@ -51,142 +51,33 @@ on:
       kernelsu_branch_other:
         description: "If 'Other' is selected, specify your custom branch"
         required: false
-        type: string  # This input is required if 'Other' is chosen
-        default: ""  # Default is empty, but can be filled in if 'Other' is selected
+        type: string
+        default: ""
 
 jobs:
-  build-ksu-gki:
+  build-kernels:
     uses: ./.github/workflows/build.yml
     secrets: inherit
+    strategy:
+      matrix:
+        kernelsu_variant: [KSU, MKSU, KSU_NEXT, ALL]
+        sub_level: ["X", "30"]
     with:
       runner: ${{ inputs.runner }}
       android_version: "android15"
       kernel_version: "6.6"
-      sub_level: "X"
-      os_patch_level: "lts"
+      sub_level: ${{ matrix.sub_level }}
+      os_patch_level: ${{ matrix.sub_level == '30' && '2024-08' || 'lts' }}
       lto_type: ${{ inputs.lto_type }}
-      kernelsu_variant: "KSU"
-      kernelsu_branch: ${{ inputs.kernelsu_branch }}
-      kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
-      include_susfs: ${{ inputs.include_susfs }}
-
-  build-mksu-gki:
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
-    with:
-      runner: ${{ inputs.runner }}
-      android_version: "android15"
-      kernel_version: "6.6"
-      sub_level: "X"
-      os_patch_level: "lts"
-      lto_type: ${{ inputs.lto_type }}
-      kernelsu_variant: "MKSU"
-      kernelsu_branch: ${{ inputs.kernelsu_branch }}
-      kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
-      include_susfs: ${{ inputs.include_susfs }}
-
-  build-ksu-next-gki:
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
-    with:
-      runner: ${{ inputs.runner }}
-      android_version: "android15"
-      kernel_version: "6.6"
-      sub_level: "X"
-      os_patch_level: "lts"
-      lto_type: ${{ inputs.lto_type }}
-      kernelsu_variant: "KSU_NEXT"
-      kernelsu_branch: ${{ inputs.kernelsu_branch }}
-      kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
-      include_susfs: ${{ inputs.include_susfs }}
-
-  build-all-ksu-gki:
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
-    with:
-      runner: ${{ inputs.runner }}
-      android_version: "android15"
-      kernel_version: "6.6"
-      sub_level: "X"
-      os_patch_level: "lts"
-      lto_type: ${{ inputs.lto_type }}
-      kernelsu_variant: "ALL"
-      kernelsu_branch: ${{ inputs.kernelsu_branch }}
-      kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
-      include_susfs: ${{ inputs.include_susfs }}
-
-  build-6-30-ksu-gki:
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
-    with:
-      runner: ${{ inputs.runner }}
-      android_version: "android15"
-      kernel_version: "6.6"
-      sub_level: 30
-      os_patch_level: "2024-08"
-      lto_type: ${{ inputs.lto_type }}
-      kernelsu_variant: "KSU"
-      kernelsu_branch: ${{ inputs.kernelsu_branch }}
-      kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
-      include_susfs: ${{ inputs.include_susfs }}
-
-  build-6-30-mksu-gki:
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
-    with:
-      runner: ${{ inputs.runner }}
-      android_version: "android15"
-      kernel_version: "6.6"
-      sub_level: 30
-      os_patch_level: "2024-08"
-      lto_type: ${{ inputs.lto_type }}
-      kernelsu_variant: "MKSU"
-      kernelsu_branch: ${{ inputs.kernelsu_branch }}
-      kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
-      include_susfs: ${{ inputs.include_susfs }}
-
-  build-6-30-ksu-next-gki:
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
-    with:
-      runner: ${{ inputs.runner }}
-      android_version: "android15"
-      kernel_version: "6.6"
-      sub_level: 30
-      os_patch_level: "2024-08"
-      lto_type: ${{ inputs.lto_type }}
-      kernelsu_variant: "KSU_NEXT"
-      kernelsu_branch: ${{ inputs.kernelsu_branch }}
-      kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
-      include_susfs: ${{ inputs.include_susfs }}
-
-  build-6-30-all-ksu-gki:
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
-    with:
-      runner: ${{ inputs.runner }}
-      android_version: "android15"
-      kernel_version: "6.6"
-      sub_level: 30
-      os_patch_level: "2024-08"
-      lto_type: ${{ inputs.lto_type }}
-      kernelsu_variant: "ALL"
+      kernelsu_variant: ${{ matrix.kernelsu_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
       include_susfs: ${{ inputs.include_susfs }}
 
   release:
     runs-on: ubuntu-latest
-    needs:
-        - build-ksu-gki
-        - build-mksu-gki
-        - build-ksu-next-gki
-        - build-all-ksu-gki
-        - build-6-30-ksu-gki
-        - build-6-30-mksu-gki
-        - build-6-30-ksu-next-gki
-        - build-6-30-all-ksu-gki
-    if: ${{ inputs.make_release }}
+    if: ${{ inputs.make_release == 'true' }}
+    needs: build-kernels
     env:
       REPO_OWNER: ukriu
       REPO_NAME: android15_gki_build
@@ -215,7 +106,6 @@ jobs:
               echo "$branch_name Commit: $COMMIT_HASH"
               echo "$branch_name Commit URL: $COMMIT_URL"
 
-              # Store commit hash and commit URL in GitHub environment
               echo "COMMIT_HASH_${var_name}=$COMMIT_HASH" >> "$GITHUB_ENV"
               echo "COMMIT_URL_${var_name}=$COMMIT_URL" >> "$GITHUB_ENV"
             fi
@@ -225,7 +115,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-            # Fetch the latest tag from GitHub (this is the latest tag based on the GitHub API)
             LATEST_TAG=$(gh api repos/$REPO_OWNER/$REPO_NAME/tags --jq '.[0].name')
             if [ -z "$LATEST_TAG" ]; then
               LATEST_TAG="v1.5.5-r0"
@@ -233,13 +122,9 @@ jobs:
             
             NEW_TAG=$(echo "$LATEST_TAG" | awk -F'-r' '{suffix=$2; if (!suffix) suffix=0; suffix++; printf "%s-r%d", $1, suffix}')
     
-            # Output the new tag to be used
             echo "New tag: $NEW_TAG"
-    
-            # Set the new tag as an environment variable to be used in later steps
             echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
 
-            # Create the tag in the repository
             git tag $NEW_TAG
             git push origin $NEW_TAG
 
@@ -253,6 +138,7 @@ jobs:
         with:
           tag_name: ${{ env.NEW_TAG }}
           prerelease: ${{ inputs.release_type }}
+          files: ""
           name: ${{ env.RELEASE_NAME }}
           body: |
             These kernels are prebuilt with Offical KernelSU/MKSU/KernelSU-Next with SUSFS.
@@ -283,23 +169,15 @@ jobs:
             \- rsuntk's KernelSU (`ALL`): https://github.com/rsuntk/KernelSU / https://t.me/rsukrnlsu
             \- backslashxx's KernelSU (`ALL`): https://github.com/backslashxx/KernelSU
             
-            The kernels starting with `ALL` have all of the above managers in one image. They also use KernelSU as the base.  
-            I wont recommend you use these as it may cause issues, just use their respective images.  
-            There is little point to using the last two managers in this case as they are specifically made for non-gki KernelSU support.  
-            
             Commit Hashes:
             \- SUSFS4KSU: gki-android15-6.6: [${{ env.COMMIT_HASH_gki_android15_6_6 }}](${{ env.COMMIT_URL_gki_android15_6_6 }})
 
       - name: Upload Release Assets
         run: |
-          # Loop through all files in the downloaded-artifacts directory
           for file in ./downloaded-artifacts/*_kernel-*/*; do
-              # Skip directories
               if [ -d "$file" ]; then
                   continue
               fi
-
-              # Upload the file to the GitHub release
               echo "Uploading $file..."
               gh release upload ${{ env.NEW_TAG }} "$file"
           done

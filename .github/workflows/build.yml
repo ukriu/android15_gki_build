@@ -247,7 +247,6 @@ jobs:
           rm -f "./common/fs/namespace.c.rej"
 
       - name: Apply Hide Stuff Patches
-        if: ${{ inputs.include_susfs == true }}
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG/common"

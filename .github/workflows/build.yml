@@ -215,6 +215,7 @@ jobs:
             echo "Applying MKSU specific SUSFS patch..."
             cp ../../kernel_patches/mksu_susfs.patch ../KernelSU/
             patch -p1 --fuzz=3 < mksu_susfs.patch
+            patch -p1 --fuzz=3 < fix.patch
           else
             echo "Invalid KernelSU variant selected!"
             exit 1
@@ -223,8 +224,6 @@ jobs:
           # Change to common directory and apply common SUSFS patch
           cd ../common
           patch -p1 --fuzz=3 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
-          # cd ../KernelSU
-          # patch -p1 --fuzz=3 < fix.patch
 
       - name: Add All Managers
         if: ${{ inputs.kernelsu_variant == 'ALL' && inputs.include_susfs == true}}

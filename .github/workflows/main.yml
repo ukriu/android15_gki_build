@@ -76,7 +76,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    if: ${{ inputs.make_release == 'true' }}
+    if: ${{ inputs.make_release }}
     needs: build-kernels
     env:
       REPO_OWNER: ukriu

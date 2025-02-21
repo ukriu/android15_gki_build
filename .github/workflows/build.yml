@@ -226,11 +226,16 @@ jobs:
           patch -p1 --fuzz=3 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
 
       - name: Add All Managers
-        if: ${{ inputs.kernelsu_variant == 'ALL' && inputs.include_susfs == true}}
+        if: ${{ inputs.kernelsu_variant == 'ALL' }}
         run: |
           cd "$CONFIG"
-          cp ../kernel_patches/apk_sign.c_fix.patch ./
-          patch -p1 --fuzz=3 < apk_sign.c_fix.patch
+           if [ "${{ inputs.include_susfs }}" = "true" ]; then
+            cp ../kernel_patches/apk_sign.c_fix.patch ./
+            patch -p1 --fuzz=3 < apk_sign.c_fix.patch
+          else
+            cp ../kernel_patches/no-susfs_apk_sign.c_fix.patch ./
+            patch -p1 --fuzz=3 < no-susfs_apk_sign.c_fix.patch
+          fi
 
       - name: Replace namespace.c
         if: ${{ inputs.include_susfs == true && inputs.sub_level == 30 && inputs.os_patch_level == '2024-08' && inputs.kernel_version == '6.6' }}

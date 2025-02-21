@@ -167,13 +167,13 @@ jobs:
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
 
-          if [ "${{ inputs.kernelsu_variant }}" == "KSU" || "${{ inputs.kernelsu_variant }}" == "ALL" ]; then
+          if [[ "${{ inputs.kernelsu_variant }}" == "KSU" || "${{ inputs.kernelsu_variant }}" == "ALL" ]]; then
             echo "Adding KernelSU Official..."
             curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash $BRANCH
-          elif [ "${{ inputs.kernelsu_variant }}" == "KSU_NEXT" ]; then
+          elif [[ "${{ inputs.kernelsu_variant }}" == "KSU_NEXT" ]]; then
             echo "Adding KernelSU Next..."
             curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash $BRANCH
-          elif [ "${{ inputs.kernelsu_variant }}" == "MKSU" ]; then
+          elif [[ "${{ inputs.kernelsu_variant }}" == "MKSU" ]]; then
             echo "Adding KernelSU MKSU..."
             curl -LSs "https://raw.githubusercontent.com/5ec1cff/KernelSU/main/kernel/setup.sh" | bash $BRANCH
           fi

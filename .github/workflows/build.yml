@@ -266,6 +266,10 @@ jobs:
           
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_OVERLAY_FS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KPROBES=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_HAVE_KPROBES=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KPROBE_EVENTS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          
           echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=n" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -305,6 +309,9 @@ jobs:
           
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_OVERLAY_FS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KPROBES=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_HAVE_KPROBES=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KPROBE_EVENTS=y" >> ./common/arch/arm64/configs/gki_defconfig
           
           # Add additional tmpfs config setting
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig

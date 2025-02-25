@@ -155,7 +155,7 @@ jobs:
               echo "BRANCH=-s main" >> $GITHUB_ENV
           elif [[ "${{ inputs.kernelsu_branch }}" == "Dev" && "${{ inputs.include_susfs }}" == "false" && "${{ inputs.kernelsu_variant }}" == "KSU_NEXT" ]]; then
               echo "BRANCH=-s next" >> $GITHUB_ENV
-          elif [[ "${{ inputs.kernelsu_branch }}" == "Dev" && "${{ inputs.include_susfs }}" == "true" && "${{ inputs.kernelsu_variant }}" == "KSU_NEXT" ]]; then
+          elif [[ "${{ inputs.kernelsu_branch }}" == "Stable" && "${{ inputs.include_susfs }}" == "true" && "${{ inputs.kernelsu_variant }}" == "KSU_NEXT" ]]; then
               echo "BRANCH=-s next-susfs" >> $GITHUB_ENV
           elif [[ "${{ inputs.kernelsu_branch }}" == "Other" && -n "${{ inputs.kernelsu_branch_other }}" ]]; then
             echo "BRANCH=-s ${{ inputs.kernelsu_branch_other }}" >> $GITHUB_ENV

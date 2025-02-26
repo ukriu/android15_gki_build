@@ -149,14 +149,12 @@ jobs:
 
       - name: Determine the branch for KernelSU
         run: |
-          if [[ "${{ inputs.kernelsu_branch }}" == "Stable" && "${{ inputs.kernelsu_variant }}" != "KSU_NEXT" ]]; then
+          if [[ "${{ inputs.kernelsu_branch }}" == "Stable" ]]; then
               echo "BRANCH=-" >> $GITHUB_ENV
           elif [[ "${{ inputs.kernelsu_branch }}" == "Dev" && ( "${{ inputs.kernelsu_variant }}" == "KSU" || "${{ inputs.kernelsu_variant }}" == "MKSU" || "${{ inputs.kernelsu_variant }}" == "ALL" ) ]]; then
               echo "BRANCH=-s main" >> $GITHUB_ENV
-          elif [[ "${{ inputs.kernelsu_branch }}" == "Dev" && "${{ inputs.include_susfs }}" == "false" && "${{ inputs.kernelsu_variant }}" == "KSU_NEXT" ]]; then
+          elif [[ "${{ inputs.kernelsu_branch }}" == "Dev" && "${{ inputs.kernelsu_variant }}" == "KSU_NEXT" ]]; then
               echo "BRANCH=-s next" >> $GITHUB_ENV
-          elif [[ "${{ inputs.kernelsu_branch }}" == "Stable" && "${{ inputs.include_susfs }}" == "true" && "${{ inputs.kernelsu_variant }}" == "KSU_NEXT" ]]; then
-              echo "BRANCH=-s next-susfs" >> $GITHUB_ENV
           elif [[ "${{ inputs.kernelsu_branch }}" == "Other" && -n "${{ inputs.kernelsu_branch_other }}" ]]; then
             echo "BRANCH=-s ${{ inputs.kernelsu_branch_other }}" >> $GITHUB_ENV
           else
@@ -204,10 +202,10 @@ jobs:
             cd ./KernelSU
             patch -p1 --forward --fuzz=3 < 10_enable_susfs_for_ksu.patch
           elif [[ "${{ inputs.kernelsu_variant }}" == "KSU_NEXT" ]]; then
-            echo "[Skipped] Applying SUSFS patches for KernelSU-Next..."
+            echo "Applying SUSFS patches for KernelSU-Next..."
             cd ./KernelSU-Next
-            # cp ../../kernel_patches/KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch ./
-            # patch -p1 --forward --fuzz=3 < KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch || true
+            cp ../../kernel_patches/0001-kernel-patch-susfs-v1.5.5-to-KernelSU-Next-v1.0.5.patch ./
+            patch -p1 --forward --fuzz=3 < 0001-kernel-patch-susfs-v1.5.5-to-KernelSU-Next-v1.0.5.patch || true
           elif [[ "${{ inputs.kernelsu_variant }}" == "MKSU" ]]; then
             echo "Applying SUSFS patches for MKSU..."
             cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
@@ -253,8 +251,13 @@ jobs:
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG/common"
           # Apply additional patch
-          cp ../../kernel_patches/69_hide_stuff.patch ./
-          patch -p1 -F 3 < 69_hide_stuff.patch
+          if [[ "${{ inputs.kernelsu_variant }}" == "KSU_NEXT" ]]; then
+            cp ../../kernel_patches/new_hooks.patch ./
+            patch -p1 -F 3 < new_hooks.patch
+          else
+            cp ../../kernel_patches/69_hide_stuff.patch ./
+            patch -p1 -F 3 < 69_hide_stuff.patch
+          fi
 
       - name: Add SUSFS Configuration Settings
         if: ${{ inputs.include_susfs == true }}
@@ -285,7 +288,11 @@ jobs:
           echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./common/arch/arm64/configs/gki_defconfig
+          if [[ "${{ inputs.kernelsu_variant }}" == "KSU_NEXT" ]]; then
+            echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
+          else
+            echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./common/arch/arm64/configs/gki_defconfig
+          fi
           
           # Add additional tmpfs config setting
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -309,9 +316,6 @@ jobs:
           
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_OVERLAY_FS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KPROBES=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_HAVE_KPROBES=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KPROBE_EVENTS=y" >> ./common/arch/arm64/configs/gki_defconfig
           
           # Add additional tmpfs config setting
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -336,7 +340,18 @@ jobs:
           rm -rf ./common/android/abi_gki_protected_exports_*
           sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
           sed -E -i '/^CONFIG_LOCALVERSION=/ s/(.*)"$/\1-🍻-blehSU-🍻"/' ./common/arch/arm64/configs/gki_defconfig
-          tools/bazel build --config=fast --lto=${{ inputs.lto_type }} //common:kernel_aarch64_dist
+          # tools/bazel build --config=fast --lto=${{ inputs.lto_type }} //common:kernel_aarch64_dist
+
+      - name: Build the Kernel
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 2
+          retry_on: timeout
+          command: |
+            cd "$CONFIG"
+            echo "Building the kernel..."
+            tools/bazel build --disk_cache=/home/runner/.cache/bazel --config=fast --lto=${{ inputs.lto_type }} //common:kernel_aarch64_dist 
 
       - name: Create Bootimgs Folder and Copy Images
         if: ${{ inputs.android_version == 'android15' }}

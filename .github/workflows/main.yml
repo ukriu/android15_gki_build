@@ -60,7 +60,7 @@ jobs:
     secrets: inherit
     strategy:
       matrix:
-        kernelsu_variant: [KSU, MKSU, KSU_NEXT, ALL]
+        kernelsu_variant: [KSU, KSU_NEXT, ALL]
         sub_level: ["X", "30"]
     with:
       runner: ${{ inputs.runner }}

@@ -1,0 +1,51 @@
+name: Build Kernel - A15
+
+permissions:
+  contents: write
+  actions: write
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        required: true
+        type: string
+      lto_type:
+        required: true
+        type: string
+      include_susfs:
+        required: true
+        type: boolean
+      kernelsu_variant:
+        required: true
+        type: string
+      kernelsu_branch:
+        required: true
+        type: string
+      kernelsu_branch_other:
+        required: false
+        type: string
+
+jobs:
+  build-kernels-a15:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - sub_level: "30"
+            os_patch_level: "2024-08"
+          - sub_level: "X"
+            os_patch_level: "lts"
+    uses: ./.github/workflows/gki-kernel.yml
+    secrets: inherit
+    with:
+      runner: ${{ inputs.runner }}
+      android_version: "android15"
+      kernel_version: "6.6"
+      sub_level: ${{ matrix.sub_level }}
+      os_patch_level: ${{ matrix.os_patch_level }}
+      lto_type: ${{ inputs.lto_type }}
+      kernelsu_variant: ${{ inputs.kernelsu_variant }}
+      kernelsu_branch: ${{ inputs.kernelsu_branch }}
+      kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      include_susfs: ${{ inputs.include_susfs }}

@@ -36,7 +36,7 @@ jobs:
             os_patch_level: "2024-08"
           - sub_level: "X"
             os_patch_level: "lts"
-    uses: ./.github/workflows/gki-kernel.yml
+    uses: ./.github/workflows/build.yml
     secrets: inherit
     with:
       runner: ${{ inputs.runner }}

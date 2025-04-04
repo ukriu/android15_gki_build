@@ -164,7 +164,7 @@ jobs:
           files: ""
           name: ${{ env.RELEASE_NAME }}
           body: |
-            These kernels are prebuilt with Offical KernelSU/MKSU/KernelSU-Next with SUSFS.
+            These kernels are prebuilt with Offical KernelSU/MKSU/KernelSU-Next and with SUSFS.
             
             **SUSFS Present: ${{ inputs.include_susfs }}**
             Actions Runner: ${{ inputs.runner }}
@@ -179,7 +179,7 @@ jobs:
             [+] Simple Maphide for LineageOS Detections
             [+] Futile Maphide for jit-zygote-cache Detections
             [+] Magic Mount Support (for MKSU/KernelSU-Next)
-            [+] Check out Wild+ Kernels for the source (in readme)
+            [+] Check out Wild+ Kernels for the partial source (in readme)
             
             Module:
             \- https://github.com/sidex15/ksu_module_susfs
@@ -193,7 +193,7 @@ jobs:
             
             Commit Hashes (at the time of release):
             \- KernelSU Official (`KSU`, `ALL`): [${{ env.KSU_REF }}](${{ env.KSU_URL }})
-            \- 5ec1cff's KernelSU (`MSU`): [${{ env.MSU_REF }}](${{ env.MSU_URL }})
+            \- 5ec1cff's KernelSU (`MKSU`): [${{ env.MKSU_REF }}](${{ env.MKSU_URL }})
             \- KernelSU Next (`KSU_NEXT`): [${{ env.KSU_NEXT_REF }}](${{ env.KSU_NEXT_URL }})
             \- SUSFS4KSU: 
               \- gki-android12-5.10: [${{ env.COMMIT_HASH_gki_android12_5_10 }}](${{ env.COMMIT_URL_gki_android12_5_10 }})

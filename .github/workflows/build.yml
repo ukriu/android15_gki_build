@@ -462,6 +462,9 @@ jobs:
         if: ${{ inputs.android_version == 'android13' || inputs.android_version == 'android14' || inputs.android_version == 'android15' }}
         run: |
           cd bootimgs
+
+          # Create gzip of the Image file
+          gzip -n -k -f -9 ./Image > ./Image.gz
           
           echo "Building boot.img"
           $MKBOOTIMG --header_version 4 --kernel Image --output boot.img

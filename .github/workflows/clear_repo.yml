@@ -6,6 +6,8 @@ on:
 jobs:
   delete-releases-and-tags:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -16,8 +18,6 @@ jobs:
           sudo apt install gh -y
 
       - name: Delete all releases via GitHub API
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Fetching all releases..."
           releases=$(gh release list --json tagName --jq '.[].tagName')
@@ -28,8 +28,6 @@ jobs:
           done
 
       - name: Delete all local and remote tags
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Fetching all tags..."
           git fetch --tags

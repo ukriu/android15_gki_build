@@ -22,25 +22,26 @@ on:
         required: true
         type: boolean
         default: true
-      runner:
-        description: "Choose runner"
+      include_ksu:
+        description: 'Include KSU?'
         required: true
-        type: choice
-        options:
-          - ubuntu-latest
-          - ubuntu-24.04
-          - ubuntu-22.04
-          - ubuntu-22.04-local
-        default: ubuntu-latest
-      lto_type:
-        description: "Choose LTO type (full will not run on basic runners)"
+        type: boolean
+        default: true
+      include_mksu:
+        description: 'Include MKSU?'
         required: true
-        type: choice
-        options:
-          - full
-          - thin
-          - none
-        default: thin
+        type: boolean
+        default: true
+      include_ksu_next:
+        description: 'Include KSU_NEXT?'
+        required: true
+        type: boolean
+        default: true
+      include_all:
+        description: 'Include ALL?'
+        required: true
+        type: boolean
+        default: true
       kernelsu_branch:
         description: "Choose ksu branch"
         required: true
@@ -57,15 +58,28 @@ on:
         default: ""
 
 jobs:
+  set-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          VARIANTS=()
+          [[ "${{ inputs.include_ksu }}" == "true" ]] && VARIANTS+=("\"KSU\"")
+          [[ "${{ inputs.include_ksu_next }}" == "true" ]] && VARIANTS+=("\"KSU_NEXT\"")
+          [[ "${{ inputs.include_mksu }}" == "true" ]] && VARIANTS+=("\"MKSU\"")
+          [[ "${{ inputs.include_all }}" == "true" ]] && VARIANTS+=("\"ALL\"")
+          echo "matrix={\"kernelsu_variant\": [$(IFS=,; echo "${VARIANTS[*]}")]}" >> $GITHUB_OUTPUT
+
   build-kernels-a15:
+    needs: set-matrix
     uses: ./.github/workflows/kernel-a15.yml
     secrets: inherit
     strategy:
       matrix:
         kernelsu_variant: [KSU, KSU_NEXT, ALL]
     with:
-      runner: ${{ inputs.runner }}
-      lto_type: ${{ inputs.lto_type }}
       kernelsu_variant: ${{ matrix.kernelsu_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
@@ -75,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ inputs.make_release }}
     needs:
-        - build-kernels-a15
+        - build-kernels-a12
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       RELEASE_NAME: "GKI Prebuilt Release"
@@ -135,8 +149,6 @@ jobs:
           get_ref "MKSU" "https://github.com/5ec1cff/KernelSU.git" "5ec1cff/KernelSU" "commit"
 
       - name: Generate and Create New Tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
             LATEST_TAG=$(gh api repos/${{ github.repository }}/tags --jq '.[0].name')
             if [ -z "$LATEST_TAG" ]; then

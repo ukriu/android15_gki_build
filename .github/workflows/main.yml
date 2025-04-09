@@ -179,8 +179,6 @@ jobs:
             These kernels are prebuilt with Offical KernelSU/MKSU/KernelSU-Next and with SUSFS.
             
             **SUSFS Present: ${{ inputs.include_susfs }}**
-            Actions Runner: ${{ inputs.runner }}
-            LTO: ${{ inputs.lto_type }}
             Branch type for KSU: ${{ inputs.kernelsu_branch }}
             blehSU Current Kernel Tag (Not Important): ${{ env.NEW_TAG }}
             

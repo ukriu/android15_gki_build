@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ inputs.make_release }}
     needs:
-        - build-kernels-a12
+        - build-kernels-a15
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       RELEASE_NAME: "GKI Prebuilt Release"
